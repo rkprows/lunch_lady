@@ -1,10 +1,10 @@
 require 'pry'
 
 @main = {
-	pizza: {name: 'Pizza', price: 4.05},
-	tacos: {name: 'Tacos', price: 3.55},
-	burger: {name: 'Burger', price: 5.55},
-	lasagna: {name: 'Lasagna', price: 4.55} 
+	pizza: {name: 'Pizza', description:'4 cheese personal pizza with marinara sauce.', price: 4.05},
+	tacos: {name: 'Tacos', description: 'Beef tacos on corn tortillas with all the toppings', price: 3.55},
+	burger: {name: 'Burger', description: 'All beef patty with cheddar cheese, ketchup, mayo, lettuce, tomato, and onion.', price: 5.55},
+	lasagna: {name: 'Lasagna', description: 'Noodles, red sauce, ricotta, topped with mozzarella and parmesan', price: 4.55} 
 }
 
 @side = {
@@ -15,9 +15,28 @@ require 'pry'
 	cookie: {name: 'Cookie', price: 1.25}
 }
 
+@nutrition = {
+	pizza: {fat: 23, calories: 500, carbs: 45},
+	tacos: {fat: 18, calories: 360, carbs: 34},
+	burger: {fat: 33, calories: 590, carbs: 43},
+	lasagna: {fat: 30, calories: 344, carbs: 39},
+	fries: {fat: 15, calories: 320, carbs: 43},
+	salad: {fat: 13, calories: 210, carbs: 18},
+	soup: {fat: 5, calories: 110, carbs: 18},
+	brownie: {fat: 24, calories: 410 , carbs: 46},
+	cookie: {fat: 10, calories: 220, carbs: 30}
+}
+
 @choices = []
 @sum = []
+@wallet = []
 
+
+def wallet
+	puts "What is your budget for lunch today?"
+	@user_input = gets.strip.to_i
+	main_menu
+end
 
 def main_menu
 	puts "What would you like?"
@@ -25,12 +44,17 @@ def main_menu
 	puts "#{@main[:tacos][:name]} - #{@main[:tacos][:price]}"
 	puts "#{@main[:burger][:name]} - #{@main[:burger][:price]}"
 	puts "#{@main[:lasagna][:name]} - #{@main[:lasagna][:price]}"
+	puts "Select 'view' to see food descriptions"
+	puts "Type 'info' to see nutritional content"
 	puts "Type exit to quit"
 	user_input1 = gets.strip.downcase.to_s
 	if user_input1 == 'pizza' || user_input1 == 'tacos'  || user_input1 == 'burger' || user_input1 == 'lasagna'
 		@choices << user_input1
-		@sum << 
 		side_menu
+	elsif user_input1 == 'view'
+		main_descriptions
+	elsif user_input1 == 'info'
+		main_nutrition
 	elsif user_input1 == 'exit'
 	exit(0) 
 	else
@@ -38,6 +62,25 @@ def main_menu
 		main_menu
 	end
 end
+
+def main_descriptions
+		puts "#{@main[:pizza][:name]} : #{@main[:pizza][:description]}"
+		puts "#{@main[:tacos][:name]} : #{@main[:tacos][:description]}"
+		puts "#{@main[:burger][:name]} : #{@main[:burger][:description]}"
+		puts "#{@main[:lasagna][:name]} : #{@main[:lasagna][:description]}"
+		
+		puts "Type return to go back to main menu"
+	input = gets.strip.to_s
+	if input == 'return'
+		main_menu
+	else
+		"I'm sorry, I didn't catch that. Please try again."
+	end
+end
+
+# def main_nutrition
+# 	puts "#{@nutrition[:pizza][]}"
+
 
 def side_menu
 	puts "Please choose a side:"
@@ -50,7 +93,7 @@ def side_menu
 	user_input2 = gets.strip.downcase.to_s
 	if user_input2 == 'fries' || user_input2 == 'salad'  || user_input2 == 'soup' || user_input2 == 'brownie' || user_input2 == 'cookie'
 	@choices << user_input2
-	 more_sides
+	more_sides
 	elsif user_input2 == 'exit' || user_input2 == 'quit'
 		puts "Thank you for stopping by!"
 		exit(0)
@@ -86,47 +129,47 @@ def order_repeat
 		else
 			check_out
 		end
-			
 	end
 end
 
 def check_out
-	if @choices.include? 'pizza'
-		@sum << @main[:pizza][:price]
-	end
-	if @choices.include? 'tacos'
-		@sum << @main[:tacos][:price]
-	end
-	if @choices.include? 'burger'
-		@sum << @main[:burger][:price]
-	end
-	if @choices.include? 'lasagna'
-		@sum << @main[:lasagna][:price]
-	end 
-	if @choices.include? 'fries'
-		@sum << @side[:fries][:price]
-	end
-	if @choices.include? 'salad'
-		@sum << @side[:salad][:price]
-	end
-	if @choices.include? 'soup'
-		@sum << @side[:soup][:price]
-	end
-	if @choices.include?'brownie'
-		@sum << @side[:brownie][:price]
-	end
-	if @choices.include?'cookie'
-		@sum << @side[:cookie][:price]
-	end
+@choices.each do |choice|
+  choice_sym = choice.to_sym
+  if @main.keys.include?(choice_sym)
+    @sum << @main[choice_sym][:price]
+  elsif @side.keys.include?(choice_sym)
+    @sum << @side[choice_sym][:price]
+  end
+end
 	puts "Your total comes to:"
-	total = @sum.reduce(:+)
-	puts total '$'
-	puts "Thank you for eating at the Ruby Lunch Room!"
+ 	puts '$' '%.2f' % @sum.reduce(:+)
+ 	if @sum.reduce(:+) > @user_input
+ 		puts "I'm sorry, you do not have enough in your wallet. Please make other selections"
+ 		@choices.clear
+ 		@sum.clear
+ 		main_menu
+ 	elsif @sum.reduce(:+) < @user_input
+	puts "Thank you!"
+	#find a way to indicate their change
+	farewell
+end
+end
+
+def farewell
+puts "Would you like to place another order? Y/N"
+user_input6 = gets.strip.downcase
+if user_input6 == 'y'
+	wallet
+else
+	puts "Thank you for visiting the Ruby Lunch Room! Have a nice day!"
+	exit(0)
+end
 end
 	
 while true
 @choices.clear
 @sum.clear
 puts "Welcome to the Ruby Lunch Room!"
-main_menu
+
+wallet
 end
